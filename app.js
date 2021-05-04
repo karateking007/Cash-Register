@@ -107,7 +107,6 @@ function checkCashRegister(price, cash, cid) {
         if (cidArr[j][1] < ansArr[i][1]) {
           objStatus = "INSUFFICIENT_FUNDS";
           objChange = [];
-          console.log("INSUFFICIENT_FUNDS");
         }
       }
     }
