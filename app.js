@@ -4,112 +4,136 @@ function checkCashRegister(price, cash, cid) {
   // To prevent answers like "0.733333339", multiply by 100, then round to nearest integer
   var change = diff - roundedDown;
   change = Math.round(change * 100);
-
-  // var valueChange = { "PENNY": 1, "NICKEL": 5, "DIME": 10, "QUARTER": 25 };
-
-  // var valueDollar = { "HUNDRED": 100, "TWENTY": 20, "TEN": 10, "FIVE": 5, "ONE": 1 };
-
-  var numOfBills = 0;
-  var numOfCoins = 0;
-  var dollarDenomArr = [100, 20, 10, 5, 1];
-  var changeDenomArr = [25, 10, 5, 1];
-  var dollarBreakDown = {};
-  var changeBreakDown = {};
-  var dollarBill;
-  var changeVar;
-
-  // Loop to determine breakdown of dollar denomination 
-  for (let i = 0; i <= dollarDenomArr.length; i++) {
-    if (roundedDown >= dollarDenomArr[i]) {
-      numOfBills = Math.floor(roundedDown / dollarDenomArr[i]);
-      dollarBreakDown[dollarDenomArr[i]] = numOfBills;
-      dollarBill = parseInt(dollarDenomArr[i]);
-      roundedDown = (roundedDown - (numOfBills * dollarBill));
-    }
-  }
-
-  // Loop to determine breakdown of change denomination 
-  for (let i = 0; i <= changeDenomArr.length; i++) {
-    if (change >= changeDenomArr[i]) {
-      numOfCoins = Math.floor(change / changeDenomArr[i]);
-      changeBreakDown[changeDenomArr[i]] = numOfCoins;
-      changeVar = parseInt(changeDenomArr[i]);
-      change = (change - (numOfCoins * changeVar));
-    }
-  }
-
-  console.log(dollarBreakDown);
-  console.log(changeBreakDown);
-
-  var ansArr = [];
-  var tempVar = 0;
-
-  for (let i in changeBreakDown) {
-    switch (i) {
-      case '25':
-        tempVar = (changeBreakDown[i] * 25) / 100;
-        ansArr.unshift(["QUARTER", tempVar]);
-        break;
-      case '10':
-        tempVar = (changeBreakDown[i] * 10) / 100;
-        ansArr.unshift(["DIME", tempVar]);
-        break;
-      case '5':
-        tempVar = (changeBreakDown[i] * 5) / 100;
-        ansArr.unshift(["NICKEL", tempVar]);
-        break;
-      case '1':
-        tempVar = (changeBreakDown[i] * 1) / 100;
-        ansArr.unshift(["PENNY", tempVar]);
-        break;
-      default:
-        console.log("Error");
-    }
-  }
-
-  for (let i in dollarBreakDown) {
-    switch (i) {
-      case '100':
-        tempVar = (dollarBreakDown[i] * 100);
-        ansArr.unshift(["ONE HUNDRED", tempVar]);
-        break;
-      case '20':
-        tempVar = (dollarBreakDown[i] * 20);
-        ansArr.unshift(["TWENTY", tempVar]);
-        break;
-      case '10':
-        tempVar = (dollarBreakDown[i] * 10);
-        ansArr.unshift(["TEN", tempVar]);
-        break;
-      case '5':
-        tempVar = (dollarBreakDown[i] * 5);
-        ansArr.unshift(["FIVE", tempVar]);
-        break;
-      case '1':
-        tempVar = (dollarBreakDown[i] * 1);
-        ansArr.unshift(["ONE", tempVar]);
-        break;
-      default:
-        console.log("Error");
-    }
-  }
-  var objChange;
-  objChange = ansArr;
-
+  var changeSmall = change / 100;
+  var valueChange = [0.25, 0.10, 0.05, 0.01];
+  var valueDollar = [100, 20, 10, 5, 1];
+  var objChange = [];
   var objStatus = "OPEN";
-
   var cidArr = cid.slice();
-  console.log(cidArr);
+  var cidDollarArr = [];
+  var cidChangeArr = [];
+  var reverseCidArr = cidArr.reverse();
+  var testArr = [];
+  var tempArr = [];
+  var multiplier;
+  var expArr = [];
 
-  for (let i = 0; i < ansArr.length; i++) {
-    for (let j = 0; j < cidArr.length; j++) {
-      if (cidArr[j][0] == ansArr[i][0]) {
-        if (cidArr[j][1] < ansArr[i][1]) {
-          objStatus = "INSUFFICIENT_FUNDS";
-          objChange = [];
+  for (let i = 0; i < 5; i++) {
+    cidDollarArr.push(reverseCidArr[i]);
+  }
+
+  for (let i = 5; i < 9; i++) {
+    cidChangeArr.push(reverseCidArr[i]);
+  }
+
+  // Dollar
+  for (let i = 0; i < valueDollar.length; i++) {
+    if (roundedDown / valueDollar[i] >= 1 && cidDollarArr[i][1] !== 0) {
+      multiplier = (Math.floor(roundedDown / valueDollar[i]));
+      while (multiplier > (cidDollarArr[i][1] / valueDollar[i])) {
+        multiplier -= 1;
+      }
+      testArr.push(multiplier * valueDollar[i]);
+      tempArr.push(valueDollar[i]);
+      roundedDown = (roundedDown - (multiplier * valueDollar[i]));
+      roundedDown *= 100;
+      roundedDown = Math.round(roundedDown);
+      roundedDown = roundedDown / 100;
+
+    }
+  }
+
+  var tempAddDollar = 0;
+  for (let i = 0; i < testArr.length; i++) {
+    tempAddDollar += testArr[i];
+  }
+
+  for (let i = 0; i < valueDollar.length; i++) {
+    for (let j = 0; j < valueDollar.length; j++) {
+      if (tempArr[j] == valueDollar[i]) {
+        switch (valueDollar[i]) {
+          case 100:
+            expArr.push(["ONE HUNDRED", testArr[j]]);
+            break;
+          case 20:
+            expArr.push(["TWENTY", testArr[j]]);
+            break;
+          case 10:
+            expArr.push(["TEN", testArr[j]]);
+            break;
+          case 5:
+            expArr.push(["FIVE", testArr[j]]);
+            break;
+          case 1:
+            expArr.push(["ONE", testArr[j]]);
+            break;
         }
       }
     }
+  }
+
+  testArr = [];
+  tempArr = [];
+
+  // Change
+  for (let i = 0; i < valueChange.length; i++) {
+    if (changeSmall / valueChange[i] >= 1 && cidChangeArr[i][1] !== 0) {
+      multiplier = (Math.floor(changeSmall / valueChange[i]));
+      while (multiplier > (cidChangeArr[i][1] / valueChange[i])) {
+        multiplier -= 1;
+      }
+      testArr.push(multiplier * valueChange[i]);
+      tempArr.push(valueChange[i]);
+      changeSmall = (changeSmall - testArr[i]);
+      changeSmall *= 100;
+      changeSmall = Math.round(changeSmall);
+      changeSmall = changeSmall / 100;
+    }
+  }
+
+  var tempAddChange = 0;
+  for (let i = 0; i < testArr.length; i++) {
+    tempAddChange += testArr[i];
+  }
+
+  for (let i = 0; i < valueChange.length; i++) {
+    for (let j = 0; j < valueChange.length; j++) {
+      if (tempArr[j] == valueChange[i]) {
+        switch (valueChange[i]) {
+          case 0.25:
+            expArr.push(["QUARTER", testArr[j]]);
+            break;
+          case 0.10:
+            expArr.push(["DIME", testArr[j]]);
+            break;
+          case 0.05:
+            expArr.push(["NICKEL", testArr[j]]);
+            break;
+          case 0.01:
+            expArr.push(["PENNY", testArr[j]]);
+            break;
+        }
+      }
+    }
+  }
+
+
+  var tempReverseCidArr = 0;
+  var tempExpArr = 0;
+  for (let i = 0; i < reverseCidArr.length; i++) {
+    tempReverseCidArr += reverseCidArr[i][1];
+  }
+
+  for (let i = 0; i < expArr.length; i++) {
+    tempExpArr += expArr[i][1];
+  }
+
+  if (tempReverseCidArr == tempExpArr) {
+    objStatus = "CLOSED";
+    objChange = expArr;
+  } else if (tempAddChange !== changeSmall) {
+    objStatus = "INSUFFICIENT_FUNDS";
+    objChange = [];
   }
 
   var ansObj = { status: "", change: "" };
@@ -121,4 +145,4 @@ function checkCashRegister(price, cash, cid) {
   return ansObj;
 }
 
-checkCashRegister(3.26, 100, [["PENNY", 1.01], ["NICKEL", 2.05], ["DIME", 3.1], ["QUARTER", 4.25], ["ONE", 90], ["FIVE", 55], ["TEN", 20], ["TWENTY", 60], ["ONE HUNDRED", 100]]);
+checkCashRegister(19.5, 20, [["PENNY", 0.5], ["NICKEL", 0], ["DIME", 0], ["QUARTER", 0], ["ONE", 0], ["FIVE", 0], ["TEN", 0], ["TWENTY", 0], ["ONE HUNDRED", 0]]);
