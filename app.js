@@ -1,18 +1,28 @@
 function checkCashRegister(price, cash, cid) {
   var diff = cash - price;
+  // roundedDown is the cash portion of the change due
   var roundedDown = Math.floor(diff);
   // To prevent answers like "0.733333339", multiply by 100, then round to nearest integer
   var change = diff - roundedDown;
   change = Math.round(change * 100);
+  // changeSmall is the change portion of the change due
   var changeSmall = change / 100;
+  // Change denomination array
   var valueChange = [0.25, 0.10, 0.05, 0.01];
+  // Dollar denomination array
   var valueDollar = [100, 20, 10, 5, 1];
+  // Initialize object status and object change
   var objChange = [];
   var objStatus = "OPEN";
+  // Copy cid to new arr
   var cidArr = cid.slice();
+  // Initialize cid dollar array for calculations
   var cidDollarArr = [];
+  // Initialize cid change array for calculations
   var cidChangeArr = [];
+  // Reverse cid array for calculations
   var reverseCidArr = cidArr.reverse();
+  // Variables for calculation loops
   var testArr = [];
   var tempArr = [];
   var multiplier;
@@ -20,6 +30,7 @@ function checkCashRegister(price, cash, cid) {
   var runningTotalChange = changeSmall;
   var runningTotalDollar = roundedDown;
 
+  // Split up the cid array into two arrays: one for dollar and one for change
   for (let i = 0; i < 5; i++) {
     cidDollarArr.push(reverseCidArr[i]);
   }
@@ -28,7 +39,7 @@ function checkCashRegister(price, cash, cid) {
     cidChangeArr.push(reverseCidArr[i]);
   }
 
-  // Dollar
+  // Calculate how many of each denomination of dollar to use
   for (let i = 0; i < valueDollar.length; i++) {
     if (runningTotalDollar / valueDollar[i] >= 1 && cidDollarArr[i][1] !== 0) {
       multiplier = (Math.floor(runningTotalDollar / valueDollar[i]));
@@ -41,7 +52,6 @@ function checkCashRegister(price, cash, cid) {
       runningTotalDollar *= 100;
       runningTotalDollar = Math.round(runningTotalDollar);
       runningTotalDollar = runningTotalDollar / 100;
-
     }
   }
 
@@ -49,6 +59,8 @@ function checkCashRegister(price, cash, cid) {
   for (let i = 0; i < testArr.length; i++) {
     tempAddDollar += testArr[i];
   }
+
+  // Determine quantity of each denomination used for dollars due
 
   for (let i = 0; i < valueDollar.length; i++) {
     for (let j = 0; j < valueDollar.length; j++) {
@@ -77,7 +89,7 @@ function checkCashRegister(price, cash, cid) {
   testArr = [];
   tempArr = [];
 
-  // Change
+  // Calculate how many of each denomination of change to use
   for (let i = 0; i < valueChange.length; i++) {
     if (runningTotalChange / valueChange[i] >= 1 && cidChangeArr[i][1] !== 0) {
       multiplier = (Math.floor(runningTotalChange / valueChange[i]));
@@ -97,7 +109,8 @@ function checkCashRegister(price, cash, cid) {
   for (let i = 0; i < testArr.length; i++) {
     tempAddChange += testArr[i];
   }
-  
+
+  // Determine quantity of each denomination used for change due
   for (let i = 0; i < valueChange.length; i++) {
     for (let j = 0; j < valueChange.length; j++) {
       if (tempArr[j] == valueChange[i]) {
@@ -119,6 +132,7 @@ function checkCashRegister(price, cash, cid) {
     }
   }
 
+  // Calculate totals of both dollars and change to compare to cid to determine object status/change
   var tempReverseCidArr = 0;
   var tempExpArr = 0;
   for (let i = 0; i < reverseCidArr.length; i++) {
@@ -140,6 +154,7 @@ function checkCashRegister(price, cash, cid) {
     objChange = [];
   }
 
+  // Assign values to return object
   var ansObj = { status: "", change: "" };
   ansObj["status"] = objStatus;
   ansObj["change"] = objChange;
