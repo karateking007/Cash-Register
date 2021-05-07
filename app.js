@@ -17,6 +17,8 @@ function checkCashRegister(price, cash, cid) {
   var tempArr = [];
   var multiplier;
   var expArr = [];
+  var runningTotalChange = changeSmall;
+  var runningTotalDollar = roundedDown;
 
   for (let i = 0; i < 5; i++) {
     cidDollarArr.push(reverseCidArr[i]);
@@ -28,17 +30,17 @@ function checkCashRegister(price, cash, cid) {
 
   // Dollar
   for (let i = 0; i < valueDollar.length; i++) {
-    if (roundedDown / valueDollar[i] >= 1 && cidDollarArr[i][1] !== 0) {
-      multiplier = (Math.floor(roundedDown / valueDollar[i]));
+    if (runningTotalDollar / valueDollar[i] >= 1 && cidDollarArr[i][1] !== 0) {
+      multiplier = (Math.floor(runningTotalDollar / valueDollar[i]));
       while (multiplier > (cidDollarArr[i][1] / valueDollar[i])) {
         multiplier -= 1;
       }
       testArr.push(multiplier * valueDollar[i]);
       tempArr.push(valueDollar[i]);
-      roundedDown = (roundedDown - (multiplier * valueDollar[i]));
-      roundedDown *= 100;
-      roundedDown = Math.round(roundedDown);
-      roundedDown = roundedDown / 100;
+      runningTotalDollar = (runningTotalDollar - (multiplier * valueDollar[i]));
+      runningTotalDollar *= 100;
+      runningTotalDollar = Math.round(runningTotalDollar);
+      runningTotalDollar = runningTotalDollar / 100;
 
     }
   }
@@ -77,17 +79,17 @@ function checkCashRegister(price, cash, cid) {
 
   // Change
   for (let i = 0; i < valueChange.length; i++) {
-    if (changeSmall / valueChange[i] >= 1 && cidChangeArr[i][1] !== 0) {
-      multiplier = (Math.floor(changeSmall / valueChange[i]));
+    if (runningTotalChange / valueChange[i] >= 1 && cidChangeArr[i][1] !== 0) {
+      multiplier = (Math.floor(runningTotalChange / valueChange[i]));
       while (multiplier > (cidChangeArr[i][1] / valueChange[i])) {
         multiplier -= 1;
       }
       testArr.push(multiplier * valueChange[i]);
       tempArr.push(valueChange[i]);
-      changeSmall = (changeSmall - testArr[i]);
-      changeSmall *= 100;
-      changeSmall = Math.round(changeSmall);
-      changeSmall = changeSmall / 100;
+      runningTotalChange = (runningTotalChange - testArr[i]);
+      runningTotalChange *= 100;
+      runningTotalChange = Math.round(runningTotalChange);
+      runningTotalChange = runningTotalChange / 100;
     }
   }
 
@@ -95,7 +97,7 @@ function checkCashRegister(price, cash, cid) {
   for (let i = 0; i < testArr.length; i++) {
     tempAddChange += testArr[i];
   }
-
+  
   for (let i = 0; i < valueChange.length; i++) {
     for (let j = 0; j < valueChange.length; j++) {
       if (tempArr[j] == valueChange[i]) {
@@ -117,7 +119,6 @@ function checkCashRegister(price, cash, cid) {
     }
   }
 
-
   var tempReverseCidArr = 0;
   var tempExpArr = 0;
   for (let i = 0; i < reverseCidArr.length; i++) {
@@ -128,10 +129,13 @@ function checkCashRegister(price, cash, cid) {
     tempExpArr += expArr[i][1];
   }
 
-  if (tempReverseCidArr == tempExpArr) {
+  objChange = expArr;
+
+  if (tempReverseCidArr == tempExpArr && tempAddChange >= changeSmall) {
     objStatus = "CLOSED";
-    objChange = expArr;
-  } else if (tempAddChange !== changeSmall) {
+    objChange = cid;
+  } else if (tempAddChange < changeSmall) {
+    console.log("FAIL");
     objStatus = "INSUFFICIENT_FUNDS";
     objChange = [];
   }
